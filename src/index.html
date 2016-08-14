@@ -9,7 +9,7 @@
     .wrap {
       background-color: #fbf9fe;
     }
-    .inline-hide {
+    .inline_hide {
       position: absolute;
       top: 0;
       left: 0;
@@ -17,6 +17,11 @@
       height: 100%;
       opacity: 0;
       z-index: 10;
+    }
+    .cl_img_show {
+      display: block;
+      width: 100%;
+      overflow: auto;
     }
   </style>
 </head>
@@ -48,13 +53,17 @@
     <div class="weui_btn_area">
       <div class="weui_btn weui_btn_primary">
         上传图片
-        <input class="inline-hide" type="file" @change="change">
+        <input class="inline_hide" type="file" @change="change">
       </div>
     </div>
     <div class="weui_cells_title">原始图片</div>
-    <img src="" alt="">
+    <div class="cl_img_show">
+      <img :src="raw.url" alt="">
+    </div>
     <div class="weui_cells_title">缩放图片</div>
-    <img src="" alt="">
+    <div class="cl_img_show">
+      <img :src="scale.url" alt="">
+    </div>
   </section>
   <script type="text/javascript" src="https://npmcdn.com/vue@1.0.26/dist/vue.min.js"></script>
   <script src="./js/fileimg2base64.js"></script>
@@ -78,50 +87,20 @@
       methods: {
         change: function (e) {
           var _this = this
-          fileimg2base64.transform(e.target.files[0], function (data) {
+          fileimg2base64.transform({
+            file: e.target.files[0]
+          }, function (data) {
             console.log(data, 2)
-            _this.raw.size = data.width + '*' + data.height + 'px'
-            _this.raw.url = data.url
+            _this.raw.length = e.target.files[0].size + 'KB'
+            _this.raw.size = data._width + '*' + data._height
+            _this.raw.url = data.img.src
+            _this.scale.size = data.width + '*' + data.height
+            _this.scale.url = data.url
           });
         }
       }
     })
     
-  </script>
-  <div id="JS_show"></div>
-  <input type="file" id="JS_input">
-  <img style="display: none" src="" id="JS_img">
-  <img style="display: block" src="" id="JS_imgPreview">
-  <canvas style="display: none;" id="JS_canvas"></canvas>
-  <script type="text/javascript">
-    var show = document.querySelector('#JS_show');
-    var input = document.querySelector('#JS_input');
-    var img = document.querySelector('#JS_img');
-    var preview = document.querySelector('#JS_imgPreview');
-    var canvas = document.querySelector('#JS_canvas');
-    var ctx=canvas.getContext('2d');
-    var reader = new FileReader();
-    preview.onload = function () {
-      console.log(this.width, this.height)
-      show.innerHTML = show.innerHTML + this.width + ',' + this.height + '<br/>';
-    }
-    img.onload = function () {
-      show.innerHTML = show.innerHTML + this.width + ',' + this.height + '<br/>';
-      console.log(this.width, this.height);
-      canvas.width = this.width/2;
-      canvas.height = this.height/2;
-      ctx.scale(0.5,0.5);
-      ctx.drawImage(this, 0, 0);
-      preview.src = canvas.toDataURL("image/png");
-    }
-    reader.onload = function (e) {
-      document.querySelector('#JS_img').setAttribute('src', e.target.result)
-    }
-    input.addEventListener('change', function (e) {
-      console.log(e.target.files[0].size);
-      show.innerHTML = show.innerHTML + e.target.files[0].size/1024 + 'kb<br/>';
-      reader.readAsDataURL(e.target.files[0]);
-    }, false)
   </script>
 </body>
 </html>
